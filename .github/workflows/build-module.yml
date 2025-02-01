@@ -14,7 +14,7 @@ jobs:
         build_env:
           - tag: "23.05.5"
             pkgarch: mipsel_24kc
-            target: mt76x8
+            target: ramips
             subtarget: mt76x8
             vermagic: "e26d7d4da75f7d7588721354d3b6e4d9"
 
