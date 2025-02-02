@@ -1,4 +1,5 @@
 name: Create Release on Tag
+
 on:
   push:
     tags:
@@ -6,7 +7,7 @@ on:
 
 jobs:
   build:
-    name: "v${{ matrix.build_env.tag }} - ${{ matrix.build_env.pkgarch}} :: ${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}} build"
+    name: "v${{ matrix.build_env.tag }} - ${{ matrix.build_env.pkgarch }} :: ${{ matrix.build_env.target }}/${{ matrix.build_env.subtarget }} build"
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -18,11 +19,17 @@ jobs:
             vermagic: "e26d7d4da75f7d7588721354d3b6e4d9"
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
         with:
           repository: openwrt/openwrt
           ref: v${{ matrix.build_env.tag }}
           fetch-depth: 0
+
+      - name: Install Dependencies
+        run: |
+          sudo apt update && sudo apt install -y build-essential libncurses5-dev libncursesw5-dev \
+          gawk flex bison zlib1g-dev wget unzip file python3
 
       - name: Clean Build Directory
         run: |
@@ -38,9 +45,18 @@ jobs:
           path: "**"
           key: ${{ runner.os }}-build-${{ env.cache-name }}
 
-      - name: Building kernel and tools
+      - name: Update Feeds
         run: |
-          echo "Building for: ${{ matrix.build_env.pkgarch}}, target:${{ matrix.build_env.target}}, subtarget: ${{ matrix.build_env.subtarget}}"
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Configure Build
+        run: |
+          make defconfig
+
+      - name: Building Kernel and Tools
+        run: |
+          echo "Building for: ${{ matrix.build_env.pkgarch}}, target: ${{ matrix.build_env.target}}, subtarget: ${{ matrix.build_env.subtarget}}"
 
           wget https://downloads.openwrt.org/releases/${{ matrix.build_env.tag }}/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/feeds.buildinfo -O feeds.conf
           echo "src-git awgopenwrt https://github.com/yury-sannikov/awg-openwrt.git" >> ./feeds.conf
@@ -81,14 +97,9 @@ jobs:
 
       - name: Build AmneziaWG
         run: |
-          make package/kmod-amneziawg/{clean,download,prepare} V=s || true
-          make package/kmod-amneziawg/compile V=s || true
-
-          make package/luci-app-amneziawg/{clean,download,prepare}
-          make package/luci-app-amneziawg/compile V=s
-
-          make V=s package/amneziawg-tools/{clean,download,prepare}
-          make V=s package/amneziawg-tools/compile
+          make package/kmod-amneziawg/{clean,download,prepare,compile} V=s || true
+          make package/luci-app-amneziawg/{clean,download,prepare,compile} V=s
+          make package/amneziawg-tools/{clean,download,prepare,compile} V=s
 
       - name: Prepare artifacts
         run: |
