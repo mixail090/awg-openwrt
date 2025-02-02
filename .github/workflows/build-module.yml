@@ -39,18 +39,7 @@ jobs:
         with:
           path: "**"
           key: ${{ runner.os }}-build-${{ env.cache-name }}
-
-      - name: Update Feeds
-        run: |
-          ./scripts/feeds update -a
-          ./scripts/feeds install -a
-
-      - name: Switch to Stable Feeds
-        run: |
-         sed -i 's/snapshots/23.05/g' feeds.conf.default
-         ./scripts/feeds update -a
-         ./scripts/feeds install -a
-         
+          
       - name: Building Kernel and Tools
         run: |
           echo "Building for: ${{ matrix.build_env.pkgarch}}, target: ${{ matrix.build_env.target}}, subtarget: ${{ matrix.build_env.subtarget}}"
