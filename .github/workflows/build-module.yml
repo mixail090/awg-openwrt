@@ -25,9 +25,6 @@ jobs:
           repository: openwrt/openwrt
           ref: v${{ matrix.build_env.tag }}
           fetch-depth: 0
-
-      - name: Install Dependencies
-        run: npm install
         
       - name: Clean Build Directory
         run: |
