@@ -28,8 +28,9 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          sudo apt update && sudo apt install -y build-essential libncurses5-dev libncursesw5-dev \
-          gawk flex bison zlib1g-dev wget unzip file python3
+         sudo apt update && sudo apt install -y build-essential libncurses5-dev libncursesw5-dev \
+         gawk flex bison zlib1g-dev wget unzip file python3 libpam0g-dev liblzma-dev libsnmp-dev
+
 
       - name: Clean Build Directory
         run: |
@@ -52,7 +53,7 @@ jobs:
 
       - name: Configure Build
         run: |
-          make defconfig
+          script -q -c "make defconfig"
 
       - name: Building Kernel and Tools
         run: |
