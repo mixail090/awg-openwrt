@@ -54,10 +54,17 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
+      - name: Switch to Stable Feeds
+        run: |
+         sed -i 's/snapshots/23.05/g' feeds.conf.default
+         ./scripts/feeds update -a
+         ./scripts/feeds install -a
+
       - name: Configure Build
         run: |
          export TERM=xterm
          make defconfig
+         make oldconfig
 
       - name: Building Kernel and Tools
         run: |
